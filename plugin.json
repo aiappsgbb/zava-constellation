@@ -1,0 +1,25 @@
+{
+  "name": "zava-constellation",
+  "version": "1.0.0",
+  "description": "Zava digital-clone workspace — three Copilot skills that take a company name and produce a deployed, branded control-plane dashboard on Azure. research-company profiles the org, compose-org forks the substrate, zava-workspace-deploy ships to ACA. USE FOR: zava, digital clone, control plane, workspace deploy, research company, compose org, org brief, branded workspace, enterprise dashboard, fleet orchestration, persona-driven. DO NOT USE FOR: individual process agents (use threadlight in awesome-gbb).",
+  "author": {
+    "name": "Microsoft AI Apps GBB",
+    "url": "https://github.com/aiappsgbb"
+  },
+  "homepage": "https://github.com/aiappsgbb/zava-constellation",
+  "repository": "https://github.com/aiappsgbb/zava-constellation",
+  "license": "MIT",
+  "category": "azure",
+  "keywords": [
+    "zava",
+    "digital-clone",
+    "workspace",
+    "control-plane",
+    "research-company",
+    "compose-org",
+    "copilot",
+    "azure",
+    "aca"
+  ],
+  "skills": "skills/"
+}

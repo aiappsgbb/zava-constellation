@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "plugins": [
+    {
+      "name": "zava-constellation",
+      "version": "1.0.0",
+      "description": "Zava digital-clone workspace — three Copilot skills that take a company name and produce a deployed, branded control-plane dashboard on Azure.",
+      "source": "."
+    }
+  ]
+}
