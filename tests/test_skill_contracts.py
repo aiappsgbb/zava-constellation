@@ -196,69 +196,91 @@ class TestRetailPrimer(unittest.TestCase):
 
 class TestRetailCapsuleAllocationArithmetic(unittest.TestCase):
     """
-    Guard golden scenario 1: "Capsule allocation" arithmetic
-    from retail.md. Verify exact allocation values close properly.
+    Document-sensitive test: Extract Capsule allocation scenario
+    from RETAIL_PRIMER and verify allocation arithmetic.
+    Validates: per_store*stores == stock and per_sku*skus == per_store.
     """
 
-    def test_capsule_allocation_total_stock(self):
-        """Available stock is 4,800 units."""
-        available_stock = 4_800
-        self.assertEqual(available_stock, 4_800)
+    def setUp(self):
+        import re
+        self.text = RETAIL_PRIMER.read_text()
 
-    def test_capsule_allocation_store_count(self):
-        """URBAN-FLAGSHIP cluster has exactly 5 stores."""
-        num_stores = 5
-        self.assertEqual(num_stores, 5)
+    def test_capsule_allocation_primer_math(self):
+        """Extract and verify Capsule allocation scenario numbers from primer."""
+        import re
 
-    def test_capsule_allocation_per_store(self):
-        """4,800 stock / 5 stores = 960 units per store."""
-        available_stock = 4_800
-        num_stores = 5
-        allocation_per_store = available_stock // num_stores
-        self.assertEqual(allocation_per_store, 960)
+        # Extract scenario block from golden scenario 1
+        scenario_block = re.search(
+            r"###\s+Golden scenario 1:.*?(?=###|$)",
+            self.text,
+            re.DOTALL | re.IGNORECASE
+        )
+        self.assertIsNotNone(scenario_block, "Golden scenario 1 not found in primer")
+        scenario_text = scenario_block.group(0)
 
-    def test_capsule_allocation_total_closes(self):
-        """Total allocation across all stores equals available stock."""
-        available_stock = 4_800
-        num_stores = 5
-        allocation_per_store = 960
-        total_allocation = allocation_per_store * num_stores
-        self.assertEqual(total_allocation, available_stock,
-                         f"Expected {available_stock}, got {total_allocation}")
+        # Extract available stock (handles commas)
+        stock_match = re.search(r"(\d{1,3}(?:,\d{3})*)\s+units", scenario_text)
+        self.assertIsNotNone(stock_match, "Available stock not found in scenario")
+        available_stock = int(stock_match.group(1).replace(',', ''))
 
-    def test_capsule_sku_count(self):
-        """48 SKUs defined in range R-2025-SS-01."""
-        num_skus = 48
-        self.assertEqual(num_skus, 48)
+        # Extract store count (from "5 stores")
+        store_match = re.search(r"(\d+)\s+stores", scenario_text)
+        self.assertIsNotNone(store_match, "Store count not found in scenario")
+        num_stores = int(store_match.group(1))
 
-    def test_capsule_allocation_per_sku_per_store(self):
-        """960 units per store / 48 SKUs = 20 units per SKU per store."""
-        allocation_per_store = 960
-        num_skus = 48
-        allocation_per_sku = allocation_per_store // num_skus
-        self.assertEqual(allocation_per_sku, 20)
+        # Extract SKU count (from "48 SKUs")
+        sku_match = re.search(r"(\d+)\s+SKUs", scenario_text)
+        self.assertIsNotNone(sku_match, "SKU count not found in scenario")
+        num_skus = int(sku_match.group(1))
 
-    def test_capsule_no_negative_allocation(self):
-        """Allocation per SKU per store must be non-negative."""
-        allocation_per_sku = 20
-        self.assertGreaterEqual(allocation_per_sku, 0)
+        # Extract per-store allocation (from "960 units per store")
+        per_store_match = re.search(r"(\d{1,3}(?:,\d{3})*)\s+units\s+per\s+store", scenario_text)
+        self.assertIsNotNone(per_store_match, "Per-store allocation not found in scenario")
+        per_store = int(per_store_match.group(1).replace(',', ''))
 
-    def test_capsule_dc_decrement(self):
-        """DC-NORTH inventory decremented by exactly 4,800."""
-        total_allocation = 4_800
-        dc_decrement = total_allocation
-        self.assertEqual(dc_decrement, 4_800)
+        # Extract per-SKU-per-store allocation (from "20 units per SKU per store")
+        per_sku_match = re.search(r"(\d+)\s+units\s+per\s+SKU\s+per\s+store", scenario_text)
+        self.assertIsNotNone(per_sku_match, "Per-SKU-per-store allocation not found in scenario")
+        per_sku = int(per_sku_match.group(1))
 
-    def test_capsule_depth_multiplier_semantics(self):
-        """Depth multiplier 1.0 does not over-commit the pool."""
-        available_stock = 4_800
-        num_stores = 5
-        depth_multiplier = 1.0
-        allocation_per_store = (available_stock / num_stores) * depth_multiplier
-        total_allocation = allocation_per_store * num_stores
-        self.assertLessEqual(total_allocation, available_stock,
-                             "Total allocation must not exceed available stock")
-        self.assertEqual(total_allocation, 4_800)
+        # Verify arithmetic: per_store * stores == stock
+        self.assertEqual(
+            per_store * num_stores,
+            available_stock,
+            f"per_store ({per_store}) * stores ({num_stores}) = {per_store * num_stores}, "
+            f"expected stock {available_stock}"
+        )
+
+        # Verify arithmetic: per_sku * skus == per_store
+        self.assertEqual(
+            per_sku * num_skus,
+            per_store,
+            f"per_sku ({per_sku}) * skus ({num_skus}) = {per_sku * num_skus}, "
+            f"expected per_store {per_store}"
+        )
+
+        # Verify non-negative allocation
+        self.assertGreaterEqual(per_sku, 0, "Per-SKU allocation must be non-negative")
+
+        # Verify DC decrement claim (check for "decremented by 4,800" or "decremented by" language)
+        dc_decrement_match = re.search(
+            r"(?:decremented|decrement)\s+by\s+(\d{1,3}(?:,\d{3})*)\s+(?:total|units)?",
+            scenario_text,
+            re.IGNORECASE
+        )
+        if dc_decrement_match:
+            dc_decrement = int(dc_decrement_match.group(1).replace(',', ''))
+            self.assertEqual(
+                dc_decrement,
+                available_stock,
+                f"DC decrement {dc_decrement} must equal available stock {available_stock}"
+            )
+
+        # Verify "no over-allocation" or "no negative allocation" language
+        self.assertTrue(
+            "no" in scenario_text.lower() and ("over-allocation" in scenario_text.lower() or "negative" in scenario_text.lower()),
+            "Scenario should mention 'no over-allocation' or 'no negative allocation'"
+        )
 
 
 if __name__ == "__main__":
