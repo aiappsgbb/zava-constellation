@@ -1,10 +1,14 @@
 {
   "schema_version": "1.0",
+  "name": "zava-constellation",
+  "owner": {
+    "name": "Microsoft AI Apps GBB"
+  },
   "plugins": [
     {
       "name": "zava-constellation",
-      "version": "1.0.0",
-      "description": "Zava digital-clone workspace — three Copilot skills that take a company name and produce a deployed, branded control-plane dashboard on Azure.",
+      "version": "2.0.0",
+      "description": "Zava executable org composition — compose-org builds a proven vertical pack with a synthetic actor world (Research, Design, Build, Prove), then zava-workspace-deploy ships private-live or public-replay to Azure. USE FOR: zava, compose-org, vertical pack, actor world, digital twin, live proof, replay proof, enterprise dashboard, fleet orchestration. DO NOT USE FOR: individual process agents (use threadlight in awesome-gbb).",
       "source": "."
     }
   ]

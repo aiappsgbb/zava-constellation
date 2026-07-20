@@ -519,6 +519,7 @@ class TestDeploySkillManifestCapabilities(unittest.TestCase):
 README_PATH = ROOT / "README.md"
 ZAVA_MD_PATH = ROOT / "ZAVA.md"
 PLUGIN_JSON_PATH = ROOT / "plugin.json"
+MARKETPLACE_JSON_PATH = ROOT / ".github" / "plugin" / "marketplace.json"
 DOCS_INDEX_PATH = ROOT / "docs" / "index.html"
 EXPERIENCE_PATH = ROOT / "zava-experience.html"
 
@@ -641,6 +642,34 @@ class TestPluginJsonTask8(unittest.TestCase):
     def test_keywords_has_vertical(self):
         kw = [k.lower() for k in self.data.get("keywords", [])]
         self.assertTrue(any("vertical" in k for k in kw))
+
+
+class TestMarketplaceJson(unittest.TestCase):
+    """marketplace.json must identify its owner and mirror plugin metadata."""
+
+    def setUp(self):
+        import json
+        self.marketplace = json.loads(MARKETPLACE_JSON_PATH.read_text())
+        self.plugin = json.loads(PLUGIN_JSON_PATH.read_text())
+        self.entry = self.marketplace["plugins"][0]
+
+    def test_marketplace_name(self):
+        self.assertEqual(
+            self.marketplace.get("name"),
+            "zava-constellation",
+        )
+
+    def test_marketplace_owner(self):
+        self.assertEqual(
+            self.marketplace.get("owner", {}).get("name"),
+            self.plugin["author"]["name"],
+        )
+
+    def test_plugin_entry_version_matches_plugin(self):
+        self.assertEqual(self.entry["version"], self.plugin["version"])
+
+    def test_plugin_entry_description_matches_plugin(self):
+        self.assertEqual(self.entry["description"], self.plugin["description"])
 
 
 class TestHtmlFilesIdentical(unittest.TestCase):
