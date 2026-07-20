@@ -1,4 +1,4 @@
-"""Contract tests for compose-org and research-company skills.
+"""Contract tests for compose-org, research-company, and zava-workspace-deploy skills.
 
 Dependency-free: stdlib unittest only.
 Validates that published skill prose matches the approved product contract.
@@ -281,6 +281,235 @@ class TestRetailCapsuleAllocationArithmetic(unittest.TestCase):
             "no" in scenario_text.lower() and ("over-allocation" in scenario_text.lower() or "negative" in scenario_text.lower()),
             "Scenario should mention 'no over-allocation' or 'no negative allocation'"
         )
+
+
+DEPLOY_SKILL = ROOT / "skills" / "zava-workspace-deploy" / "SKILL.md"
+
+
+class TestDeploySkillVersion(unittest.TestCase):
+    """Deploy skill must declare version 4.0.0."""
+
+    def setUp(self):
+        self.text = DEPLOY_SKILL.read_text()
+
+    def test_version_4(self):
+        self.assertIn('version: "4.0.0"', self.text)
+
+
+class TestDeploySkillModeGate(unittest.TestCase):
+    """Must require explicit private-live or public-replay choice before Azure mutation."""
+
+    def setUp(self):
+        self.text = DEPLOY_SKILL.read_text()
+
+    def test_private_live_mode(self):
+        self.assertIn("private-live", self.text)
+
+    def test_public_replay_mode(self):
+        self.assertIn("public-replay", self.text)
+
+    def test_mode_choice_before_mutation(self):
+        """Skill text must state mode choice is required before Azure mutation."""
+        lower = self.text.lower()
+        self.assertTrue(
+            "before" in lower and ("azd" in lower or "mutation" in lower or "deploy" in lower),
+            "Must require mode choice BEFORE any Azure mutation"
+        )
+        # Mode gate must be explicit
+        self.assertRegex(self.text, r"(?i)choose|select|pick.*mode")
+
+
+class TestDeploySkillProofManifest(unittest.TestCase):
+    """Deploy skill must require a proof manifest with specific checks."""
+
+    def setUp(self):
+        self.text = DEPLOY_SKILL.read_text()
+
+    def test_proof_manifest_path(self):
+        self.assertIn("proof/manifest.json", self.text)
+
+    def test_source_commit_check(self):
+        """Must verify git rev-parse HEAD equals manifest source_commit."""
+        self.assertIn("source_commit", self.text)
+        self.assertIn("git rev-parse HEAD", self.text)
+
+    def test_vertical_match(self):
+        """Must verify manifest vertical matches requested vertical."""
+        self.assertIn("vertical", self.text.lower())
+        self.assertRegex(self.text, r"(?i)manifest.*vertical|vertical.*manifest")
+
+    def test_fingerprint_check(self):
+        """Must verify fingerprint matches."""
+        self.assertIn("fingerprint", self.text)
+
+    def test_live_pass(self):
+        """Must require live result PASS."""
+        self.assertRegex(self.text, r"(?i)live.*PASS|live_result.*PASS")
+
+    def test_replay_pass(self):
+        """Must require replay result PASS."""
+        self.assertRegex(self.text, r"(?i)replay.*PASS|replay_result.*PASS")
+
+    def test_browser_errors_empty(self):
+        """Must require browserErrors empty."""
+        self.assertIn("browserErrors", self.text)
+        self.assertRegex(self.text, r"(?i)browserErrors.*empty|\[\]")
+
+    def test_fail_closed(self):
+        """Proof must fail closed."""
+        self.assertRegex(self.text, r"(?i)fail.closed|abort|exit 1")
+
+
+class TestDeploySkillPrivateLiveMode(unittest.TestCase):
+    """private-live mode: auth, Durable Functions, actor world, writable state, HITL."""
+
+    def setUp(self):
+        self.text = DEPLOY_SKILL.read_text()
+
+    def test_zava_mode_live(self):
+        self.assertIn("ZAVA_MODE=live", self.text)
+
+    def test_zava_vertical_env(self):
+        self.assertIn("ZAVA_VERTICAL", self.text)
+
+    def test_durable_functions_enabled(self):
+        self.assertRegex(self.text, r"(?i)durable\s+functions.*enabled|functions\s+host")
+
+    def test_actor_world_enabled(self):
+        self.assertRegex(self.text, r"(?i)actor.world.*enabled|writable.*state")
+
+    def test_authentication_required(self):
+        self.assertRegex(self.text, r"(?i)auth.*required|authentication.*before.*ingress")
+
+    def test_postdeploy_health_smoke(self):
+        self.assertRegex(self.text, r"(?i)health")
+
+    def test_postdeploy_workflow_smoke(self):
+        self.assertRegex(self.text, r"(?i)workflow.*smoke|smoke.*workflow")
+
+    def test_postdeploy_hitl_smoke(self):
+        self.assertRegex(self.text, r"(?i)hitl|human.in.the.loop")
+
+    def test_postdeploy_world_mutation_smoke(self):
+        self.assertRegex(self.text, r"(?i)world.*mutation|mutation.*smoke")
+
+
+class TestDeploySkillPublicReplayMode(unittest.TestCase):
+    """public-replay mode: baked tape, read-only, no Functions, no actor world."""
+
+    def setUp(self):
+        self.text = DEPLOY_SKILL.read_text()
+
+    def test_zava_mode_replay(self):
+        self.assertIn("ZAVA_MODE=replay", self.text)
+
+    def test_baked_tape(self):
+        self.assertRegex(self.text, r"(?i)baked\s+tape|tape.*path")
+
+    def test_read_only_middleware(self):
+        self.assertRegex(self.text, r"(?i)read.only.*middleware|middleware.*read.only")
+
+    def test_functions_skipped(self):
+        self.assertRegex(self.text, r"(?i)skip.*functions|functions.*disabled|no.*functions")
+
+    def test_actor_world_disabled(self):
+        self.assertRegex(self.text, r"(?i)actor.world.*disabled|world.*disabled")
+
+    def test_postdeploy_replay_meta_smoke(self):
+        self.assertRegex(self.text, r"(?i)replay.*meta|meta.*smoke")
+
+    def test_postdeploy_read_only_rejection(self):
+        self.assertRegex(self.text, r"(?i)read.only.*reject|write.*reject|405|403")
+
+    def test_postdeploy_surfaces_smoke(self):
+        self.assertRegex(self.text, r"(?i)surface.*smoke|smoke.*surface")
+
+
+class TestDeploySkillNoStaleCounts(unittest.TestCase):
+    """Must not quote stale fixed counts from old versions."""
+
+    STALE_COUNTS = [
+        "462 files",
+        "38 domains",
+        "48 routes",
+        "46 tools",
+        "62 graphs",
+        "19 agents",
+    ]
+
+    def setUp(self):
+        self.text = DEPLOY_SKILL.read_text()
+
+    def test_no_stale_counts(self):
+        for count in self.STALE_COUNTS:
+            with self.subTest(count=count):
+                self.assertNotIn(count, self.text)
+
+
+class TestDeploySkillAzdAcaPattern(unittest.TestCase):
+    """Must use actual azd/ACA pattern from the repo."""
+
+    def setUp(self):
+        self.text = DEPLOY_SKILL.read_text()
+
+    def test_azd_up(self):
+        self.assertIn("azd up", self.text)
+
+    def test_container_apps(self):
+        self.assertRegex(self.text, r"(?i)container\s*app")
+
+    def test_bicep(self):
+        self.assertIn("Bicep", self.text)
+
+
+class TestDeploySkillTenantIsolation(unittest.TestCase):
+    """Tenant isolation must link to aiappsgbb/awesome-gbb skill."""
+
+    def setUp(self):
+        self.text = DEPLOY_SKILL.read_text()
+
+    def test_references_awesome_gbb(self):
+        self.assertIn("aiappsgbb/awesome-gbb", self.text)
+
+    def test_revalidate_before_azd(self):
+        """Must revalidate tenant immediately before azd up."""
+        self.assertRegex(
+            self.text,
+            r"(?i)(revalidat|verify|check).*tenant.*before.*azd|"
+            r"tenant.*(immediately|just)\s+before"
+        )
+
+
+class TestDeploySkillManifestCapabilities(unittest.TestCase):
+    """Must introspect capabilities from manifest instead of fixed counts."""
+
+    def setUp(self):
+        self.text = DEPLOY_SKILL.read_text()
+
+    def test_manifest_introspection(self):
+        self.assertRegex(self.text, r"(?i)manifest.*capabilit|introspect|discover.*from.*manifest")
+
+    def test_no_roadmap_section(self):
+        """Must not contain stale roadmap section."""
+        self.assertNotIn("### v11 roadmap", self.text)
+        self.assertNotIn("### v10 roadmap", self.text)
+
+    def test_frontmatter_description_practical_limit(self):
+        """Frontmatter description must be under 500 chars (plugin practical limit)."""
+        import re
+        match = re.search(r"^---\n(.*?)^---", self.text, re.MULTILINE | re.DOTALL)
+        self.assertIsNotNone(match, "Missing frontmatter")
+        fm = match.group(1)
+        desc_match = re.search(r"description:\s*>\n(.*?)(?=^\w|\Z)",
+                               fm, re.MULTILINE | re.DOTALL)
+        if desc_match:
+            desc = desc_match.group(1).strip()
+        else:
+            desc_match = re.search(r"description:\s*(.+)", fm)
+            self.assertIsNotNone(desc_match, "Missing description")
+            desc = desc_match.group(1).strip()
+        self.assertLess(len(desc), 500,
+                        f"Description too long ({len(desc)} chars)")
 
 
 if __name__ == "__main__":
