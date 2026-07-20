@@ -1,32 +1,35 @@
 # zava-constellation
 
-> **Three Copilot skills.** Name a company → branded digital-clone workspace
-> on Azure.
+> **Two Copilot entry points.** `compose-org "<target>"` builds a proven
+> executable vertical pack, then `zava-workspace-deploy` ships it
+> private-live or public-replay on Azure.
 
-**▶ [Live experience page](https://aiappsgbb.github.io/zava-constellation/)**
+**[Live experience page](https://aiappsgbb.github.io/zava-constellation/)**
 
 ---
 
 ## What is Zava?
 
-**Zava** is the agentic substrate that powers digital-clone demos: a
-multi-domain control plane with 37 operational domains, 170+ API routes,
-persona-driven orchestration, real-time SSE fleet streams, and
-OpenTelemetry → App Insights observability.
+**Zava** is the agentic substrate that powers executable org compositions:
+a multi-domain control plane with persona-driven orchestration, real-time
+SSE fleet streams, and OpenTelemetry observability.
 
-The pipeline runs in three steps — each a self-contained Copilot skill:
+One invocation builds a complete vertical:
 
 ```
-research-company → compose-org → zava-workspace-deploy
+compose-org "<target>"
 ```
 
-1. **`research-company`** — profile the target company (Wikipedia, annual
-   reports, registry data) → emit `org-brief.yaml`
-2. **`compose-org`** — fork the
-   [`zava-control-plane`](https://github.com/arturcrmbot/zava-control-plane)
-   substrate into a customer-branded digital clone
-3. **`zava-workspace-deploy`** — build the React SPA, package with FastAPI,
-   deploy to Azure Container Apps with OpenTelemetry
+Internally `compose-org` runs four phases -- Research, Design, Build, Prove
+-- producing a proven vertical pack with a deterministic synthetic actor
+world anchored by source-backed factual research.
+
+Then deploy:
+
+```
+zava-workspace-deploy --mode private-live   # writable actor world, auth
+zava-workspace-deploy --mode public-replay  # baked tape, read-only
+```
 
 > **Full architecture and runbook:** [ZAVA.md](ZAVA.md)
 
@@ -34,27 +37,21 @@ research-company → compose-org → zava-workspace-deploy
 
 ## Quick start
 
-### Install the plugin (all 3 skills)
+### Install the plugin
 
 ```bash
 copilot plugin marketplace add aiappsgbb/zava-constellation
 copilot plugin install zava-constellation@zava-constellation
 ```
 
-### Or install individual skills
+### Run
 
 ```bash
-gh skill install aiappsgbb/zava-constellation research-company
-gh skill install aiappsgbb/zava-constellation compose-org
-gh skill install aiappsgbb/zava-constellation zava-workspace-deploy
-```
+# Build the vertical (Research -> Design -> Build -> Prove)
+> "Use compose-org to build a vertical for Contoso Bank."
 
-### Run the pipeline
-
-```
-> "Use research-company to profile Contoso Bank."
-> "Use compose-org to fork the substrate for Contoso Bank."
-> "Use zava-workspace-deploy to ship this to Azure."
+# Deploy (choose mode)
+> "Use zava-workspace-deploy to ship private-live to Azure."
 ```
 
 ---
@@ -75,9 +72,16 @@ The Threadlight skills live in
 
 | Skill | What it does |
 |-------|-------------|
-| [**research-company**](skills/research-company/) | Profile a target organisation against its public web footprint — Wikipedia, annual reports, registry data — and emit an `org-brief.yaml` with named ELT, subsidiaries, strategic themes, and stack overrides. Ships 5 industry primers (telco, airline, banking, retail, auto-OEM). |
-| [**compose-org**](skills/compose-org/) | Fork the substrate into a customer-flavoured digital clone using a signed-off org-brief + the matching primer. Ten phases: clone, rebrand, repack data fabric, swap entity kinds, regenerate personas, extend domain registry, scaffold MCP mocks, re-seed data, smoke-test. |
-| [**zava-workspace-deploy**](skills/zava-workspace-deploy/) | Deploy the branded React/Vite SPA to Azure Container Apps — builds the SPA bundle, packages with FastAPI, generates Bicep + `azure.yaml`, configures API proxy + SSE passthrough, wires OpenTelemetry → App Insights. |
+| [**compose-org**](skills/compose-org/) | One invocation: Research, Design, Build, Prove. Takes a target name, invokes `research-company` internally for factual profiling, designs a vertical pack, builds the synthetic actor world, proves causal correctness. Output: a proven executable vertical. |
+| [**zava-workspace-deploy**](skills/zava-workspace-deploy/) | Deploy the proven vertical to Azure Container Apps. Two modes: `private-live` (writable actor world, Durable Functions, auth) or `public-replay` (baked tape, read-only). Proof manifest gate required before deploy. |
+| [**research-company**](skills/research-company/) | *Internal factual sub-skill* invoked by compose-org during Phase Research. Profiles the target against public sources (Wikipedia, registries, annual reports). Emits `org-brief.yaml`. Not a required separate pipeline step. |
+
+---
+
+## Proven reference
+
+Telco is the current proven reference vertical (clean compose-org run +
+proof gate PASS). Additional verticals require their own acceptance run.
 
 ---
 

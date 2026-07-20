@@ -512,5 +512,145 @@ class TestDeploySkillManifestCapabilities(unittest.TestCase):
                         f"Description too long ({len(desc)} chars)")
 
 
+###############################################################################
+# Task-8 public story contracts
+###############################################################################
+
+README_PATH = ROOT / "README.md"
+ZAVA_MD_PATH = ROOT / "ZAVA.md"
+PLUGIN_JSON_PATH = ROOT / "plugin.json"
+DOCS_INDEX_PATH = ROOT / "docs" / "index.html"
+EXPERIENCE_PATH = ROOT / "zava-experience.html"
+
+PUBLIC_FILES = [README_PATH, ZAVA_MD_PATH, DOCS_INDEX_PATH, EXPERIENCE_PATH]
+
+
+class TestPublicStoryPresence(unittest.TestCase):
+    """Public files must mention compose-org, phases, deploy, and modes."""
+
+    REQUIRED_TERMS = [
+        "compose-org",
+        "Research",
+        "Design",
+        "Build",
+        "Prove",
+        "zava-workspace-deploy",
+        "private-live",
+        "public-replay",
+    ]
+
+    def test_readme_contains_required_terms(self):
+        text = README_PATH.read_text()
+        for term in self.REQUIRED_TERMS:
+            with self.subTest(term=term):
+                self.assertIn(term, text)
+
+    def test_zava_md_contains_required_terms(self):
+        text = ZAVA_MD_PATH.read_text()
+        for term in self.REQUIRED_TERMS:
+            with self.subTest(term=term):
+                self.assertIn(term, text)
+
+    def test_docs_index_contains_required_terms(self):
+        text = DOCS_INDEX_PATH.read_text()
+        for term in self.REQUIRED_TERMS:
+            with self.subTest(term=term):
+                self.assertIn(term, text)
+
+    def test_experience_contains_required_terms(self):
+        text = EXPERIENCE_PATH.read_text()
+        for term in self.REQUIRED_TERMS:
+            with self.subTest(term=term):
+                self.assertIn(term, text)
+
+
+class TestPublicStoryForbiddenPhrases(unittest.TestCase):
+    """Public files must NOT advertise old contract language."""
+
+    FORBIDDEN = [
+        "research-company \u2192 compose-org",
+        "research-company -> compose-org",
+        "three-step",
+        "three-skill",
+        "three skills",
+        "Three skills",
+        "Three Copilot skills",
+        "branded fork",
+        "literal rebrand",
+        "domain stubs",
+        "swap entity kinds",
+        "170 API routes",
+        "170 routes",
+        "37 domains",
+        "37-domain",
+        "12 operational",
+        "25 strategic",
+    ]
+
+    def test_readme_no_forbidden(self):
+        text = README_PATH.read_text()
+        for phrase in self.FORBIDDEN:
+            with self.subTest(phrase=phrase):
+                self.assertNotIn(phrase, text)
+
+    def test_zava_md_no_forbidden(self):
+        text = ZAVA_MD_PATH.read_text()
+        for phrase in self.FORBIDDEN:
+            with self.subTest(phrase=phrase):
+                self.assertNotIn(phrase, text)
+
+    def test_docs_index_no_forbidden(self):
+        text = DOCS_INDEX_PATH.read_text()
+        for phrase in self.FORBIDDEN:
+            with self.subTest(phrase=phrase):
+                self.assertNotIn(phrase, text)
+
+    def test_experience_no_forbidden(self):
+        text = EXPERIENCE_PATH.read_text()
+        for phrase in self.FORBIDDEN:
+            with self.subTest(phrase=phrase):
+                self.assertNotIn(phrase, text)
+
+
+class TestPluginJsonTask8(unittest.TestCase):
+    """plugin.json must be version 2.0.0 with updated description."""
+
+    def setUp(self):
+        import json
+        self.data = json.loads(PLUGIN_JSON_PATH.read_text())
+
+    def test_version_2(self):
+        self.assertEqual(self.data["version"], "2.0.0")
+
+    def test_description_mentions_compose_org(self):
+        self.assertIn("compose-org", self.data["description"])
+
+    def test_description_mentions_vertical(self):
+        self.assertIn("vertical", self.data["description"].lower())
+
+    def test_description_mentions_actor_world(self):
+        desc = self.data["description"].lower()
+        self.assertTrue(
+            "actor world" in desc or "synthetic actor" in desc or "actor" in desc,
+            "plugin description must mention actor world concept"
+        )
+
+    def test_description_no_three_skills(self):
+        self.assertNotIn("three", self.data["description"].lower())
+
+    def test_keywords_has_vertical(self):
+        kw = [k.lower() for k in self.data.get("keywords", [])]
+        self.assertTrue(any("vertical" in k for k in kw))
+
+
+class TestHtmlFilesIdentical(unittest.TestCase):
+    """docs/index.html and zava-experience.html must be byte-identical."""
+
+    def test_byte_identical(self):
+        a = DOCS_INDEX_PATH.read_bytes()
+        b = EXPERIENCE_PATH.read_bytes()
+        self.assertEqual(a, b, "docs/index.html and zava-experience.html must be byte-identical")
+
+
 if __name__ == "__main__":
     unittest.main()
