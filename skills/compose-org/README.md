@@ -1,81 +1,81 @@
 # compose-org
 
-Fork an agentic-substrate repo into a customer-flavoured digital
-clone, driven by an org-brief (produced by `research-company`)
-paired with the matching industry primer.
+Build a working vertical pack for a named company or industry
+inside the Zava substrate.
 
 See [`SKILL.md`](SKILL.md) for the canonical procedure.
+
+## Entry point
+
+```
+compose-org "<company or industry>"
+```
+
+One command. The agent handles Research → Design → Build → Prove.
 
 ## Pipeline position
 
 ```
-┌───────────────────┐    ┌────────────────────┐    ┌──────────────────┐
-│ research-company  │ →  │   compose-org      │ →  │  <substrate>-    │
-│ (profile target)  │    │   (this skill)     │    │   <slug>/        │
-│                   │    │                    │    │  (local fork)    │
-│ briefs/<slug>-    │    │ + industry primer  │    │                  │
-│   org-brief.yaml  │    │                    │    │  make up         │
-└───────────────────┘    └────────────────────┘    └──────────────────┘
+┌─────────────────────────┐
+│  compose-org             │
+│  "<company or industry>" │
+├─────────────────────────┤
+│  Phase Research          │ ← invokes research-company if needed
+│  Phase Design            │ ← one business question at a time
+│  Phase Build             │ ← verticals/<slug>/ additive pack
+│  Phase Prove             │ ← docs/VERTICAL-PROOF.md causal chain
+└─────────────────────────┘
+         ↓
+   Working local repo
+   (deployment separate)
 ```
 
 ## Files
 
 | File | What it is |
 |---|---|
-| [`SKILL.md`](SKILL.md) | The ten-phase procedure. Strict frontmatter (≤1024 char description, semver). |
-| `references/` | (Reserved for future per-substrate path tables. Today the substrate paths are inlined in SKILL.md.) |
+| [`SKILL.md`](SKILL.md) | Four-phase procedure. Strict frontmatter (≤1024 char, semver 2.0.0). |
+| [`references/vertical-pack-contract.md`](references/vertical-pack-contract.md) | Ownership boundaries: what the pack owns vs global surfaces. |
+| [`references/proof-contract.md`](references/proof-contract.md) | Acceptance criteria mirroring `docs/VERTICAL-PROOF.md`. |
 
 ## What it does
 
-1. **Pre-flight** — validate brief, find primer, check substrate
-   path is clean, refuse if fork target exists.
-2. **Clone** — `git clone <substrate>` → `<substrate>-<slug>` (no
-   GitHub remote configured).
-3. **Rebrand** — literal find-and-replace per the substrate's own
-   rebrand playbook, with a tight file-extension allowlist.
-4. **Data fabric repack** — `SUBSIDIARIES`, client/brand generator,
-   cadenced rituals, narrative arcs, all derived from brief + primer.
-5. **Kuzu schema swap** — rename `Brand`/`Campaign`/`Pitch`/
-   `MediaPlan` tables to the primer's vertical equivalents; add
-   new-kind tables.
-6. **Functions & personae** — replace `functions.py` per primer;
-   ensure persona folders exist for every brief-named ELT and every
-   primer archetype.
-7. **Domain composition** — extend `domains.py` with the primer's
-   25+ proposed-domain library (all marked `stub=True`).
-8. **Stack mocks** — scaffold one Node MCP mock per stack override
-   in the brief.
-9. **Re-seed** — regenerate the Kuzu snapshot under
-   `data/snapshots/`.
-10. **Smoke test + hand off** — `make test`; print operator's next
-    steps.
+1. **Research** — gathers source-backed facts via `research-company`
+   (or accepts pre-approved evidence).
+2. **Design** — asks one business question at a time; approves actor
+   world, causal story, process breadth, heroes, authority, systems,
+   realism, proof contract.
+3. **Build** — acquires zava-control-plane (retains `upstream`
+   remote), places all customer behavior under `verticals/<slug>/`.
+   Full manifest: functions, domains, agents, authority, personas,
+   policies, skills, MCPs, world, operations, profiles, cases,
+   actions, durable, projections, recordings, UI.
+4. **Prove** — live causal chain per `docs/VERTICAL-PROOF.md`;
+   generates a permanent proof command and evidence bundle.
 
 ## What it does NOT do
 
-- **Push to GitHub.** Forks are local-only by default; operator
-  runs `gh repo create` later if wanted.
-- **Generate orchestrator/graphs/skills for new domains.** Those
-  are `compose-domain`'s job — invoked inside the new fork to
-  graduate stub domains one at a time.
-- **Regenerate demo media** (avatars, recordings). The rebrand is
-  text-only.
-- **Mass-edit private engagement notes.** Briefs in `briefs/` are
-  read; nothing under there is mutated.
+- **Deploy.** Output is a working local repo; deployment is separate.
+- **Replace global registries.** All customization is additive.
+- **Mass-rebrand core.** The substrate stays canonical.
+- **Generate stubs.** Every surface is functional or omitted.
+- **Push to GitHub.** Local-only by default.
 
-## Output
+## Build constraints
 
-A new local git repo at `<substrate-parent>/<substrate>-<slug>/`
-containing the rebranded + customised substrate. Roughly:
-
-- ~30–40 atomic commits (one per phase, optionally per sub-step)
-- ~150–250 files modified by the rebrand
-- ~10–15 new files (mocks, persona folders)
-- ~5,000–10,000 lines of diff
-
-After `compose-org` finishes, the operator runs `make up` in the
-new fork to boot it.
+- Customer behavior under `verticals/<slug>/` only.
+- Canonical `upstream` remote preserved.
+- Uses current Telco pack as structural reference, not literal copy.
+- Uses pack-scoped `compose-domain` for bespoke hero workflows.
+- Related processes share engines/skills/MCPs but each has distinct
+  trigger, profile, typed command, world case, success evidence.
 
 ## Changelog
 
-- **1.0.0** — Initial version. Ten-phase procedure, tight rebrand
-  allowlist, idempotent re-run support, per-phase commit boundaries.
+- **2.0.0** (MAJOR) — Complete rewrite. Replaced ten-phase
+  fork-and-rebrand procedure with four-phase Research/Design/Build/
+  Prove contract. Customer behavior now additive under
+  `verticals/<slug>/` instead of literal mass-rebrand. Proof
+  required before completion claim. No stubs.
+- **1.0.2** — Patch: clarified idempotent re-run semantics.
+- **1.0.0** — Initial version (ten-phase fork-and-rebrand).
