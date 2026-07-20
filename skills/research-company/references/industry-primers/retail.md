@@ -139,11 +139,11 @@ Scenarios with fixed seeds and expected outcomes for proof runs:
 
 - **Seed**: Range R-2025-SS-01 with 12 Products, 48 SKUs.
   DC-NORTH holds 4,800 units. Store cluster URBAN-FLAGSHIP (5 stores).
-- **Command**: `AllocateRange { range_id: "R-2025-SS-01", store_cluster: "URBAN-FLAGSHIP", depth_multiplier: 2.0 }`
-- **Expected outcome**: Each of 5 stores receives exactly
-  (4800 / 5) × depth_ratio = 1,920 units, distributed across 48 SKUs
-  proportionally. Inventory at DC-NORTH decremented by 4,800 total.
-  No SKU receives negative allocation.
+- **Command**: `AllocateRange { range_id: "R-2025-SS-01", store_cluster: "URBAN-FLAGSHIP", depth_multiplier: 1.0 }`
+- **Expected outcome**: Total allocation of 4,800 units distributed evenly
+  across 5 stores = 960 units per store, distributed across 48 SKUs
+  proportionally (20 units per SKU per store). Inventory at DC-NORTH
+  decremented by 4,800 total. No SKU receives negative allocation.
 
 ### Golden scenario 2: "Week-6 markdown"
 
