@@ -652,5 +652,101 @@ class TestHtmlFilesIdentical(unittest.TestCase):
         self.assertEqual(a, b, "docs/index.html and zava-experience.html must be byte-identical")
 
 
+###############################################################################
+# Cross-repo proof manifest path / schema alignment
+###############################################################################
+
+REQUIRED_PROOF_SCHEMA_KEYS = [
+    "source_commit",
+    "vertical",
+    "fingerprint",
+    "live_result",
+    "replay_result",
+    "browserErrors",
+    "live_summary",
+    "replay_summary",
+]
+
+
+class TestProofManifestPathAlignment(unittest.TestCase):
+    """compose-org and deploy must agree on the canonical proof/manifest.json path."""
+
+    def setUp(self):
+        self.compose = COMPOSE_SKILL.read_text()
+        self.deploy = DEPLOY_SKILL.read_text()
+
+    def test_compose_skill_references_root_manifest(self):
+        """Phase Prove must name the canonical proof/manifest.json at repo root."""
+        self.assertIn("proof/manifest.json", self.compose)
+
+    def test_compose_skill_no_verticals_proof_bundle(self):
+        """Evidence bundle must not be placed under verticals/<slug>/proof/."""
+        self.assertNotIn("verticals/<slug>/proof/", self.compose)
+
+    def test_compose_and_deploy_same_manifest_path(self):
+        """Both skills must reference the same canonical proof/manifest.json path."""
+        self.assertIn("proof/manifest.json", self.compose)
+        self.assertIn("proof/manifest.json", self.deploy)
+
+
+class TestProofContractCanonicalPath(unittest.TestCase):
+    """proof-contract.md must reference root proof/manifest.json, not a vertical-scoped path."""
+
+    def setUp(self):
+        self.text = COMPOSE_PROOF_CONTRACT.read_text()
+
+    def test_root_manifest_path(self):
+        """Evidence manifest must be at proof/manifest.json (repo root)."""
+        self.assertIn("proof/manifest.json", self.text)
+
+    def test_no_verticals_proof_path(self):
+        """Must not place the evidence bundle under verticals/<slug>/proof/."""
+        self.assertNotIn("verticals/<slug>/proof/", self.text)
+
+    def test_no_wrong_manifest_filename(self):
+        """Must not use the old standalone proof-manifest.json filename."""
+        self.assertNotIn("proof-manifest.json", self.text)
+
+
+class TestProofContractSchemaKeys(unittest.TestCase):
+    """proof-contract.md schema must contain all keys required by the deploy skill."""
+
+    def setUp(self):
+        self.text = COMPOSE_PROOF_CONTRACT.read_text()
+
+    def test_has_fingerprint(self):
+        self.assertIn("fingerprint", self.text)
+
+    def test_has_live_result(self):
+        self.assertIn("live_result", self.text)
+
+    def test_has_replay_result(self):
+        self.assertIn("replay_result", self.text)
+
+    def test_has_browser_errors(self):
+        self.assertIn("browserErrors", self.text)
+
+    def test_has_live_summary(self):
+        self.assertIn("live_summary", self.text)
+
+    def test_has_replay_summary(self):
+        self.assertIn("replay_summary", self.text)
+
+
+class TestProofContractNoDurableObject(unittest.TestCase):
+    """proof-contract.md must reference Azure Durable Functions, not 'Durable Object'."""
+
+    def setUp(self):
+        self.text = COMPOSE_PROOF_CONTRACT.read_text()
+
+    def test_no_durable_object(self):
+        """Must not describe the orchestration step as a 'Durable Object'."""
+        self.assertNotIn("Durable Object", self.text)
+
+    def test_uses_azure_durable_functions(self):
+        """Must explicitly reference Azure Durable Functions."""
+        self.assertIn("Azure Durable Functions", self.text)
+
+
 if __name__ == "__main__":
     unittest.main()

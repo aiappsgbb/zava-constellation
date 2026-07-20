@@ -120,9 +120,11 @@ The build must generate a **permanent proof command**:
 make prove VERTICAL=<slug>
 ```
 
-And a permanent evidence bundle at `verticals/<slug>/proof/`
-containing logs, manifest, screenshots, recordings, and
-before/after world snapshots.
+This command writes a permanent evidence bundle at the repository
+root `proof/`, including `proof/manifest.json`, screenshots,
+recordings, logs, and before/after world snapshots. Pack-curated
+recordings may additionally be copied to `verticals/<slug>/`
+but the deploy artifact is the root `proof/` bundle.
 
 See [`references/proof-contract.md`](references/proof-contract.md)
 for the full proof specification.

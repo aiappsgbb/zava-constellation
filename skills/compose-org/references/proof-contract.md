@@ -19,7 +19,7 @@ A vertical is not proven until a live causal chain passes end-to-end:
 2. **Sensor** — an event trigger fires from world state.
 3. **Objective** — the workflow engine accepts a typed command with
    a declared objective.
-4. **Durable** — a Durable Object processes the command through
+4. **Durable** — Azure Durable Functions processes the command through
    defined phases.
 5. **HITL** — at least one human-in-the-loop gate fires and is
    approved.
@@ -50,38 +50,52 @@ gracefully — no crashes, no orphaned state.
 
 - Zero browser console errors during proof run
 - Zero dropped workflow events
-- Clean teardown — all Durable Objects and temporary state removed
+- Clean teardown — Azure Durable Functions and temporary state removed
 
 ## Evidence manifest
 
-Every proof run must produce a permanent evidence bundle at
-`verticals/<slug>/proof/`:
+Every proof run must produce a permanent evidence bundle at the
+repository root `proof/`:
 
 | Artifact | Purpose |
 |---|---|
-| `proof-run.log` | Full stdout/stderr of the proof command |
-| `proof-manifest.json` | Machine-readable pass/fail per criterion |
-| `screenshots/` | Key UI states captured during run |
-| `recordings/` | AG-UI interaction recordings |
-| `world-snapshot-before.json` | Actor world state before proof |
-| `world-snapshot-after.json` | Actor world state after proof |
+| `proof/manifest.json` | Canonical machine-readable pass/fail manifest |
+| `proof/live-summary.json` | Per-criterion detail for the live run |
+| `proof/replay-summary.json` | Per-criterion detail for the replay run |
+| `proof/screenshots/` | Key UI states captured during run |
+| `proof/recordings/` | AG-UI interaction recordings |
+| `proof/world-snapshot-before.json` | Actor world state before proof |
+| `proof/world-snapshot-after.json` | Actor world state after proof |
 
-## Source commit SHA
+Pack-curated recordings may additionally be copied into
+`verticals/<slug>/` for pack-local reference, but the authoritative
+deploy artifact is always the root `proof/` bundle.
 
-The proof evidence must record the exact source commit SHA of the
-substrate at proof time. This is stored in `proof-manifest.json`
-under the `source_commit` key. The vertical slug is stored under
-`vertical`.
+## Source commit and manifest schema
+
+The permanent evidence bundle is anchored by `proof/manifest.json`.
+This file must be written (or overwritten) by the proof command and
+must contain all fields required by the deploy skill:
 
 ```json
 {
   "source_commit": "<sha>",
   "vertical": "<slug>",
-  "timestamp": "<ISO-8601>",
-  "pass": true,
-  "criteria": [ ... ]
+  "fingerprint": "<pack-runtime-fingerprint>",
+  "live_result": "PASS",
+  "replay_result": "PASS",
+  "browserErrors": [],
+  "live_summary": "proof/live-summary.json",
+  "replay_summary": "proof/replay-summary.json"
 }
 ```
+
+`source_commit` is the exact `git rev-parse HEAD` SHA at proof time.
+`fingerprint` is the pack runtime fingerprint recorded at build time.
+`live_summary` and `replay_summary` point to per-criterion detail
+files also written under `proof/` by the same proof command.
+Additional fields (e.g. `timestamp`, `criteria`) may be present but
+the eight fields above are required and must pass the deploy preflight.
 
 ## Permanent proof command
 
@@ -94,6 +108,14 @@ make prove VERTICAL=<slug>
 
 This command is permanent — it must work at any point in the
 repository's future without manual setup beyond `make funcvenv`.
+
+The command is responsible for:
+- Running live and replay proof passes
+- Writing `proof/manifest.json` with the current `source_commit`
+  (`git rev-parse HEAD`), `fingerprint`, `live_result`, `replay_result`,
+  `browserErrors`, `live_summary`, and `replay_summary`
+- Writing `proof/live-summary.json` and `proof/replay-summary.json`
+- Capturing screenshots, recordings, and world snapshots under `proof/`
 
 ## Failure policy
 
