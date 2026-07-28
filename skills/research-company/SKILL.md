@@ -15,7 +15,7 @@ description: >
   DO NOT USE FOR: single-process design (use threadlight-design),
   pitch decks, code generation, building actor worlds.
 metadata:
-  version: "3.0.0"
+  version: "3.1.0"
 ---
 
 # research-company
@@ -65,9 +65,11 @@ filled with plausible-sounding fiction.
 If a vertical primer exists in
 [`references/industry-primers/`](references/industry-primers/), the
 research run is **thin** — 30–45 minutes of web work, ~300–500 lines
-of YAML. If no primer exists, write one first (see
-[`industry-primers/README.md`](references/industry-primers/README.md))
-and graduate it before producing a brief.
+of YAML. If no usable primer exists, record the missing industry-model sections and
+return the gap to `compose-org`. The controller decides whether to expand an
+existing seed or author and review a new primer during Design. Do not expose a
+separate prerequisite workflow to the operator and do not invent missing
+industry facts inside the org brief.
 
 ## When to use
 
@@ -126,8 +128,9 @@ Key rules:
 ### Phase 0 — Bootstrap
 
 Create `briefs/<slug>-org-brief.yaml` with skeleton keys + empty
-arrays. Pick the matching primer; if none exists, stop and write
-one first.
+arrays. Pick the matching reviewed primer. If none is usable, return the
+explicit gap to `compose-org` and wait for its Design-stage industry-model
+decision.
 
 ### Phase A — Identity, ownership, size, geography (10 min)
 

@@ -1,7 +1,9 @@
-# Industry Primer — Airline
+# Industry Primer - Airline
 
-> **Canon — see [AGENTS.md § 2.2](../../../../AGENTS.md#22--reference-data-files-are-canon--do-not-normalize).**
-> *Stub — to be expanded next time `research-company` is run against an airline target.*
+> **Status: Unproven seed.**
+> This inventory is not a reviewed airline primer. It must be expanded and
+> reviewed by `compose-org` during the first airline Design phase before it can
+> support a build. Public-source research remains mandatory.
 
 ## Sub-segments
 
@@ -37,6 +39,9 @@
 `otp_d0`, `load_factor`, `ask_growth`, `rask`, `cancellation_rate`,
 `mro_cycle_time`, `crew_utilisation`, `slot_compliance`, `nps`.
 
-## TODO
+## Gaps before use
 
-Expand on first airline run.
+The first airline Design phase must add and review actor relationships, causal
+dynamics, process families, authority, typed commands, deterministic golden
+scenarios, operating distributions, system candidates, and proof status. The
+seed must not be treated as evidence that those sections already exist.

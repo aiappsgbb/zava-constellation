@@ -3,6 +3,9 @@
 Build a working vertical pack for a named company or industry
 inside the Zava substrate.
 
+Validated against acquired Build Contract version `1.0.0` and Proof Contract
+version `1.0.0`.
+
 See [`SKILL.md`](SKILL.md) for the canonical procedure.
 
 ## Entry point
@@ -34,7 +37,8 @@ One command. The agent handles Research → Design → Build → Prove.
 
 | File | What it is |
 |---|---|
-| [`SKILL.md`](SKILL.md) | Four-phase procedure. Strict frontmatter (≤1024 char, semver 2.0.0). |
+| [`SKILL.md`](SKILL.md) | Four-phase procedure. Strict frontmatter (≤1024 char, semver 2.0.1). |
+| Acquired `docs/superpowers/contracts/VERTICAL-BUILD-CONTRACT.md` | Canonical code-first ownership, truth-mode, and readiness contract (version `1.0.0`). |
 | [`references/vertical-pack-contract.md`](references/vertical-pack-contract.md) | Ownership boundaries: what the pack owns vs global surfaces. |
 | [`references/proof-contract.md`](references/proof-contract.md) | Acceptance criteria mirroring `docs/VERTICAL-PROOF.md`. |
 
@@ -72,6 +76,9 @@ One command. The agent handles Research → Design → Build → Prove.
 
 ## Changelog
 
+- **2.0.1** (PATCH) - Defers pack ownership, phase truth modes, and readiness
+  to acquired Build Contract version `1.0.0`; removes the stale global-adapter
+  extension instruction.
 - **2.0.0** (MAJOR) — Complete rewrite. Replaced ten-phase
   fork-and-rebrand procedure with four-phase Research/Design/Build/
   Prove contract. Customer behavior now additive under

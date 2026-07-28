@@ -1,48 +1,51 @@
 # Vertical Pack Contract
 
-Defines what a customer vertical pack **owns** and what it **never touches**.
+**Validated build contract:** `1.0.0`
 
-## Pack-owned surfaces
+This companion reference summarizes the acquired substrate's
+`docs/superpowers/contracts/VERTICAL-BUILD-CONTRACT.md`. The acquired contract
+is authoritative.
 
-All customer-specific behavior lives under `verticals/<slug>/` in the
-acquired substrate. A vertical pack may contain:
+## Pack composition root
 
-| Surface | Path | Notes |
-|---|---|---|
-| Domain definitions | `verticals/<slug>/domains/` | One YAML per workflow_type |
-| Orchestrators | `verticals/<slug>/orchestrators/` | Per-domain orchestrator logic |
-| Agent skills | `verticals/<slug>/skills/` | Domain-specific Copilot skills |
-| Personas | `verticals/<slug>/personas/` | Customer-named ELT + archetypes |
-| World seeds | `verticals/<slug>/worlds/` | Actor world, causal stories |
-| Process profiles | `verticals/<slug>/profiles/` | Per-process config |
-| Reference cases | `verticals/<slug>/cases/` | Golden-path scenario bundles |
-| Authority policies | `verticals/<slug>/policies/` | Function/role authority matrix |
-| MCP servers | `verticals/<slug>/mcps/` | Customer stack mock MCPs |
-| Actions & commands | `verticals/<slug>/actions/` | Typed commands and handlers |
-| Durable objects | `verticals/<slug>/durable/` | Durable workflow state |
-| Projections | `verticals/<slug>/projections/` | Read-model event projections |
-| Recordings | `verticals/<slug>/recordings/` | Replay-proof screen flows |
-| UI extensions | `verticals/<slug>/ui/` | Custom drawer/portal components |
-| Operations | `verticals/<slug>/operations/` | Deployment / infra overrides |
+Customer-specific business behavior lives under `verticals/<slug>/` and is
+composed by `verticals/<slug>/manifest.py`. Packs are automatically discovered
+from manifest directories.
 
-## Global surfaces — never replaced
+A pack may own modules and assets for domains, functions, agents, authority,
+personas, policies, skills, MCP tools, actor worlds, process profiles, cases,
+typed actions, Durable registrations, projections, recordings, and UI
+extensions. The exact shape follows the current substrate pack contract; this
+reference does not impose one directory layout on every industry.
 
-The vertical pack never replaces or overwrites global registries,
-schemas, or shared infrastructure:
+## Shared surfaces
 
-- **Global domain registry** (`api/shared/domains.py`) — vertical
-  domains are *registered* there but defined in `verticals/<slug>/`.
-- **Global function registry** (`api/shared/functions.py`) — the
-  pack adds entries; it never removes or renames existing ones.
-- **Global persona registry** (`api/shared/personas.py`) — additive.
-- **Core schema / Kuzu entity definitions** — the pack extends; it
-  never renames or removes existing entity kinds.
-- **Shared skills / MCPs / tools** — the pack may *use* them but
-  never modifies their source.
-- **Root package manifests** — the pack never edits root
-  `package.json`, `pyproject.toml`, or `Makefile` beyond additive
-  entries.
+A vertical never replaces or overwrites global registries or shared
+infrastructure.
 
-> **Rule**: A vertical pack never replaces global registries or
-> overwrites global schema. All customization is additive under
-> `verticals/<slug>/`.
+`api/shared/domains.py`, `api/shared/functions.py`, and equivalent compatibility
+modules are read-only active-pack adapters. A vertical never patches them,
+another pack, `function_app.py`, or a global business inventory.
+
+An industry-neutral substrate extension is allowed only when the behavior is
+not customer-specific and is covered by shared tests. Business behavior remains
+pack-owned.
+
+## Generated and bespoke runtime interfaces
+
+Generated and bespoke code use the same canonical substrate interfaces:
+
+- `run_agent_session` for declared agent work and observed tool evidence;
+- canonical workflow identity at every Durable checkpoint;
+- governance plus persisted HITL recovery context;
+- typed command dispatch with idempotency;
+- canonical projection identity for API and UI surfaces.
+
+Bespoke code is not permission to create pack-local evidence, governance, or
+identity substitutes.
+
+## Rule
+
+Reuse when behavior matches, extend an industry-neutral primitive when multiple
+verticals need it, and otherwise write bespoke pack code. Never relabel another
+vertical's business behavior.

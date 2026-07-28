@@ -1,5 +1,7 @@
 # Proof Contract
 
+**Contract version: `1.0.0`**
+
 Defines the acceptance criteria for a vertical pack proof run,
 mirroring the target substrate's `docs/VERTICAL-PROOF.md`.
 
@@ -21,8 +23,8 @@ A vertical is not proven until a live causal chain passes end-to-end:
    a declared objective.
 4. **Durable** — Azure Durable Functions processes the command through
    defined phases.
-5. **HITL** — at least one human-in-the-loop gate fires and is
-   approved.
+5. **HITL** — when the workflow declares one, the governed gate fires,
+   persists recovery context, and resumes from the declared decision.
 6. **Typed command** — a domain-specific command mutates state.
 7. **World mutation** — the actor world reflects the outcome.
 8. **Evaluation** — success criteria evaluate to pass.
@@ -40,11 +42,13 @@ The same IDs and outcomes must be observable across:
 - Graph (entity/relation graph)
 - Constellation (skill orchestration)
 
-## Replay with functions disabled
+## Live and replay parity
 
-After the happy-path proof passes, replay the same scenario with
-Functions and world state disabled. The system must degrade
-gracefully — no crashes, no orphaned state.
+After live proof passes, replay the same qualifying workflow set with Functions
+and actor-world mutation disabled. Live and replay require user-visible parity
+for workflow status, timeline, reasoning, observed tools, decisions, lineage,
+and deterministic output, subject only to the substrate's documented volatile
+field exclusions.
 
 ## Clean-room criteria
 
@@ -116,6 +120,19 @@ The command is responsible for:
   `browserErrors`, `live_summary`, and `replay_summary`
 - Writing `proof/live-summary.json` and `proof/replay-summary.json`
 - Capturing screenshots, recordings, and world snapshots under `proof/`
+
+## Readiness vocabulary
+
+- **Build ready** means every applicable machine criterion in the acquired
+  `docs/VERTICAL-PROOF.md` passes.
+- **Demo ready** additionally requires a human seller review of reset, pacing,
+  visual quality, and story coherence.
+
+Machine proof cannot set seller review to PASS.
+
+This contract version does not change the current proof manifest shape.
+Manifest schema, repeatability-ledger, and deploy-preflight changes require a
+later versioned contract.
 
 ## Failure policy
 

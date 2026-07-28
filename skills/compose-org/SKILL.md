@@ -12,7 +12,7 @@ description: >
   DO NOT USE FOR: single domain (use compose-domain inside the
   pack), deployment, pitch decks.
 metadata:
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 # compose-org
@@ -24,6 +24,17 @@ compose-org "<company or industry>"
 ```
 
 One public entry point. Four phases. Output is a working local repo.
+
+## Contract authority
+
+Read the acquired substrate's
+`docs/superpowers/contracts/VERTICAL-BUILD-CONTRACT.md` and
+`docs/VERTICAL-PROOF.md` before Design. This skill is validated against Build
+Contract version `1.0.0` and Proof Contract version `1.0.0`.
+
+The substrate contracts own pack boundaries, phase truth modes, readiness, and
+proof. If the acquired versions are missing or incompatible, stop at preflight;
+do not fall back to an older companion procedure.
 
 ## Phase Research
 
@@ -81,15 +92,18 @@ Build produces the full manifest as applicable:
 - Recordings, UI extensions
 
 Uses the current Telco pack as a proven structural reference (not a
-literal copy). Uses the current pack-scoped `compose-domain` for
-bespoke hero workflows. Related processes may share engines, skills,
+literal copy). Uses pack-scoped `compose-domain` for generator-compatible
+workflow scaffolding. Novel behavior remains bespoke pack code and uses the
+same canonical runtime interfaces. Related processes may share engines, skills,
 or MCPs, but each has a distinct trigger, profile, typed command,
 world case, and success evidence.
 
 ### Build constraints
 
 - Customer behavior lives in `verticals/<slug>/` only.
-- Global registries are extended additively, never replaced.
+- Pack manifests are automatically discovered. `api/shared/domains.py`,
+  `api/shared/functions.py`, and equivalent compatibility modules are
+  read-only active-pack adapters, never build targets.
 - No stubs — every surface is functional or omitted.
 - `upstream` remote is preserved for future substrate pulls.
 
